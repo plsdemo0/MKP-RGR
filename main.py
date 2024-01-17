@@ -1,4 +1,5 @@
 import array
+import copy
 
 import openpyxl
 import numpy as np
@@ -43,6 +44,9 @@ with open(text_file_path, 'r') as file:
 workbook.save(file_path)
 print(f"Данные успешно записаны в лист {sheet_name} файла {file_path}")
 
+# Закрытие книги после использования
+workbook.close()
+
 # Создание массива для записи данных КА для подсчетов пересечений
 
 # Запись названий спутников
@@ -52,6 +56,8 @@ for i in range(1,29,3):
     cell = sheet.cell(row = i, column=1)
     name_list.append(cell.value)
     data_list.append(name_list)
+del name_list
+
 # Запись данных для каждого спутника
 for j in range(len(data_list)):
     for d in range(2,9):
@@ -89,7 +95,7 @@ for i in range(len(data_list)):
     info_list = [data_list[i][0],x_0,x_k]
     coordinate_list.append(info_list)
 
-def find_intersection(KA1, KA2):
+def find_intersection(KA1, KA2, i, j):
     # Находим наклон и точку пересечения для первой линии
     y1 = KA1[1]
     y2 = KA1[2]
@@ -109,19 +115,77 @@ def find_intersection(KA1, KA2):
     if x_intersect < 0 or x_intersect > 1826:
         return None
     else:
-        return x_intersect, y_intersect, KA1[0], KA2[0]
+        return x_intersect, y_intersect, KA1[0], KA2[0], i, j
 
-cross = []
+cross_list = []
 for i in range(len(coordinate_list)):
     for j in range(i+1,len(coordinate_list)):
-        cross.append(find_intersection(coordinate_list[i],coordinate_list[j]))
+        cross_list.append(find_intersection(coordinate_list[i],coordinate_list[j], i, j))
 
+cross_c = copy.deepcopy(cross_list)
+for i in range(len(cross_list)):
+    if cross_list[i] == None:
+        cross_c.remove(None)
+cross_list = cross_c
+del cross_c
 # Заполнение таблицы эксель данными КА которые пересекаются
 
+# Выбираем лист "Data" или создаем его, если его нет
+workbook = openpyxl.load_workbook(file_path)
+
+# Выбираем лист "Crossing" или создаем его, если его нет
+sheet_name = 'Crossing'
+if sheet_name in workbook.sheetnames:
+    sheet = workbook[sheet_name]
+    sheet.delete_rows(1, sheet.max_row)
+else:
+    sheet = workbook.create_sheet(title=sheet_name)
+
+name_list = ["Пересечения","Δa","Δω","Δv1","Δv2","Δv Σдек","Δv Σпол"]
+for i in range(len(name_list)):
+    cell = sheet.cell(row=1, column=i+1)
+    cell.value = name_list[i]
+
+
+
+k = 2
+for i in range(len(cross_list)):
+
+        cell = sheet.cell(row=k,column=1)
+        cell.value = cross_list[i][2] + " –> " + cross_list[i][3]
+        a1 = ((nu * (1 / (data_list[cross_list[i][4]][7] / 86400)) ** 2 / 4 / np.pi ** 2) ** (1 / 3))
+        a2 = ((nu * (1 / (data_list[cross_list[i][5]][7] / 86400)) ** 2 / 4 / np.pi ** 2) ** (1 / 3))
+        # Запись дельта а
+        cell = sheet.cell(row=k,column=2)
+        cell.value = abs(a1 - a2)
+        # Запись дельта w
+        cell = sheet.cell(row=k,column=3)
+        cell.value = abs(data_list[cross_list[i][4]][5] - data_list[cross_list[i][5]][5])
+        # Запись дельта v1
+        cell = sheet.cell(row=k,column=4)
+        cell.value = (2*nu*a2/a1/(a1+a2))**(1/2)-(nu/a1)**(1/2)
+        # Запись дельта v2
+        cell = sheet.cell(row=k,column=5)
+        cell.value = (nu/a2)**(1/2)-(2*nu*a1/a2/(a1+a2))**(1/2)
+        # Запись Δv Σдек
+        cell = sheet.cell(row=k,column=6)
+        cell.value = abs(sheet.cell(row=k,column=5).value + sheet.cell(row=k,column=4).value)
+        # Запись Δv Σпол
+        cell = sheet.cell(row=k, column=7)
+        cell.value = (sheet.cell(row=k,column=4).value**2+sheet.cell(row=k,column=5).value**2)**(1/2)
+        k += 1
+
+        cell = sheet.cell(row=k,column=1)
+        k += 1
+        cell.value = cross_list[i][3] + " –> " + cross_list[i][2]
+
+# Сохраняем изменения в файле
+workbook.save(file_path)
 
 # Вывод массива данных КА
 Print_List(data_list)
 Print_List(coordinate_list)
+Print_List(cross_list)
 # Закрытие книги после использования
 workbook.close()
 
