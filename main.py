@@ -5,6 +5,7 @@ import numpy as np
 
 # Вывод массива данных
 def Print_List(x):
+    print('\n')
     for i in range(len(x)):
         print(x[i])
 
@@ -87,6 +88,36 @@ for i in range(len(data_list)):
     x_k = x_0 + (data_list[i][-1]-data_list[min_ID][-1]) * 1826
     info_list = [data_list[i][0],x_0,x_k]
     coordinate_list.append(info_list)
+
+def find_intersection(KA1, KA2):
+    # Находим наклон и точку пересечения для первой линии
+    y1 = KA1[1]
+    y2 = KA1[2]
+    y3 = KA2[1]
+    y4 = KA2[2]
+    x1 = 1826
+    x0 = 0
+    m1 = (y2 - y1) / (x1 - x0)
+    b1 = y1 - m1 * x0
+    # Находим наклон и точку пересечения для второй линии
+    m2 = (y4 - y3) / (x1 - x0)
+    b2 = y3 - m2 * x0
+    # Решаем систему уравнений для нахождения x и y точки пересечения
+    x_intersect = (b2 - b1) / (m1 - m2)
+    y_intersect = m1 * x_intersect + b1
+
+    if x_intersect < 0 or x_intersect > 1826:
+        return None
+    else:
+        return x_intersect, y_intersect, KA1[0], KA2[0]
+
+cross = []
+for i in range(len(coordinate_list)):
+    for j in range(i+1,len(coordinate_list)):
+        cross.append(find_intersection(coordinate_list[i],coordinate_list[j]))
+
+# Заполнение таблицы эксель данными КА которые пересекаются
+
 
 # Вывод массива данных КА
 Print_List(data_list)
