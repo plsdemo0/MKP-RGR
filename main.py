@@ -1,4 +1,7 @@
+import array
+
 import openpyxl
+import numpy as np
 
 file_path = 'МКП_РГР.xlsx'
 workbook = openpyxl.load_workbook(file_path)
@@ -32,5 +35,36 @@ with open(text_file_path, 'r') as file:
 
 # Сохраняем изменения в файле
 workbook.save(file_path)
-
 print(f"Данные успешно записаны в лист {sheet_name} файла {file_path}")
+
+# Создание массива для записи данных КА для подсчетов пересечений
+
+# Запись названий спутников
+data_list = []
+for i in range(1,29,3):
+    name_list = []
+    cell = sheet.cell(row = i, column=1)
+    name_list.append(cell.value)
+    data_list.append(name_list)
+# Запись данных для каждого спутника
+for j in range(len(data_list)):
+    for d in range(2,9):
+        cell = sheet.cell(row = (j+1)*3, column=d)
+        data_list[j].append(cell.value)
+
+# Константы
+nu = 396628
+R = 6378.16
+J2 = 0.0010827
+eps = 3/2 * nu * J2 * R**2
+
+# Рассчитываем Омеги, сначала Град/Виток, затем Град/Сутки
+for i in range(len(data_list)):
+    omega_1 = -(2*np.pi*eps) / nu / (((nu * (1 / (data_list[i][7] / 86400))**2/4/np.pi**2)**(1/3)) * (1-data_list[i][4]**2))**2 * np.cos(data_list[i][2]*np.pi/180)
+    data_list[i].append(omega_1)
+
+# Закрытие книги после использования
+for i in range(len(data_list)):
+    print(data_list[i])
+workbook.close()
+
