@@ -175,9 +175,30 @@ for i in range(len(cross_list)):
         cell.value = (sheet.cell(row=k,column=4).value**2+sheet.cell(row=k,column=5).value**2)**(1/2)
         k += 1
 
+        # Делаем тоже самое но от второго КА к первому КА
         cell = sheet.cell(row=k,column=1)
-        k += 1
         cell.value = cross_list[i][3] + " –> " + cross_list[i][2]
+        a1 = ((nu * (1 / (data_list[cross_list[i][5]][7] / 86400)) ** 2 / 4 / np.pi ** 2) ** (1 / 3))
+        a2 = ((nu * (1 / (data_list[cross_list[i][4]][7] / 86400)) ** 2 / 4 / np.pi ** 2) ** (1 / 3))
+        # Запись дельта а
+        cell = sheet.cell(row=k, column=2)
+        cell.value = abs(a1 - a2)
+        # Запись дельта w
+        cell = sheet.cell(row=k, column=3)
+        cell.value = abs(data_list[cross_list[i][5]][5] - data_list[cross_list[i][4]][5])
+        # Запись дельта v1
+        cell = sheet.cell(row=k, column=4)
+        cell.value = (2 * nu * a2 / a1 / (a1 + a2)) ** (1 / 2) - (nu / a1) ** (1 / 2)
+        # Запись дельта v2
+        cell = sheet.cell(row=k, column=5)
+        cell.value = (nu / a2) ** (1 / 2) - (2 * nu * a1 / a2 / (a1 + a2)) ** (1 / 2)
+        # Запись Δv Σдек
+        cell = sheet.cell(row=k, column=6)
+        cell.value = abs(sheet.cell(row=k, column=5).value + sheet.cell(row=k, column=4).value)
+        # Запись Δv Σпол
+        cell = sheet.cell(row=k, column=7)
+        cell.value = (sheet.cell(row=k, column=4).value ** 2 + sheet.cell(row=k, column=5).value ** 2) ** (1 / 2)
+        k += 1
 
 # Сохраняем изменения в файле
 workbook.save(file_path)
