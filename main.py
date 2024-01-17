@@ -3,6 +3,11 @@ import array
 import openpyxl
 import numpy as np
 
+# Вывод массива данных
+def Print_List(x):
+    for i in range(len(x)):
+        print(x[i])
+
 file_path = 'МКП_РГР.xlsx'
 workbook = openpyxl.load_workbook(file_path)
 
@@ -64,9 +69,28 @@ for i in range(len(data_list)):
     data_list[i].append(omega_1)
     omega_2 = data_list[i][-1]/(1 / (data_list[i][7] / 86400)) * 86400
     data_list[i].append(omega_2)
-# Вывод массива данных КА
+
+# Поиск КЛА с наименьшей высотой
+# Для этого ищем наибольшее значение в data_list[n][7]
+max = 0
+min_ID = 0
 for i in range(len(data_list)):
-    print(data_list[i])
+    if max<data_list[i][7]:
+        max = data_list[i][7]
+        min_ID = i
+
+# Рассчитываем и записываем начальные и конечные координаты спутников
+coordinate_list = []
+for i in range(len(data_list)):
+    x_0 = data_list[i][3]
+    # 1826 это количество дней за 5 лет
+    x_k = x_0 + (data_list[i][-1]-data_list[min_ID][-1]) * 1826
+    info_list = [data_list[i][0],x_0,x_k]
+    coordinate_list.append(info_list)
+
+# Вывод массива данных КА
+Print_List(data_list)
+Print_List(coordinate_list)
 # Закрытие книги после использования
 workbook.close()
 
