@@ -62,9 +62,11 @@ eps = 3/2 * nu * J2 * R**2
 for i in range(len(data_list)):
     omega_1 = -(2*np.pi*eps) / nu / (((nu * (1 / (data_list[i][7] / 86400))**2/4/np.pi**2)**(1/3)) * (1-data_list[i][4]**2))**2 * np.cos(data_list[i][2]*np.pi/180)
     data_list[i].append(omega_1)
-
-# Закрытие книги после использования
+    omega_2 = data_list[i][-1]/(1 / (data_list[i][7] / 86400)) * 86400
+    data_list[i].append(omega_2)
+# Вывод массива данных КА
 for i in range(len(data_list)):
     print(data_list[i])
+# Закрытие книги после использования
 workbook.close()
 
