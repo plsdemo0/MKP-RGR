@@ -22,6 +22,8 @@ else:
     sheet = workbook.create_sheet(title=sheet_name)
 
 text_file_path = 'Данные'
+
+filter_list = [1,4,7,10,13,16,19,22,25,28]
 with open(text_file_path, 'r') as file:
     # Читаем строки из файла
     lines = file.readlines()
@@ -31,14 +33,24 @@ with open(text_file_path, 'r') as file:
         # Записываем данные в соответствующие ячейки в лист "Data"
         for col_number, data_part in enumerate(data_parts, start=1):
             cell = sheet.cell(row=line_number, column=col_number)
-            cell.value = data_part
             # Пробуем преобразовать данные в числовой формат
             try:
-                cell.value = float(
-                    data_part.replace(',', '.'))  # Заменяем запятую на точку для правильного преобразования
+                cell.value = float(data_part.replace(',', '.'))  # Заменяем запятую на точку для правильного преобразования
             except ValueError:
                 # Если не удалось преобразовать в число, оставляем строку
                 cell.value = data_part
+
+# Запись названия КА в одну ячейку
+for i in range(1,31,3):
+    k = 1
+    name = sheet.cell(row=i,column=k).value
+    while sheet.cell(row=i,column=k+1).value != None:
+        k += 1
+        name = name + ' ' + str(sheet.cell(row=i,column=k).value)
+        cell = sheet.cell(row=i, column=k)
+        cell.value = None
+    cell = sheet.cell(row=i,column=1)
+    cell.value = name
 
 # Сохраняем изменения в файле
 workbook.save(file_path)
@@ -145,8 +157,6 @@ name_list = ["Пересечения","Δa","Δω","Δv1","Δv2","Δv Σдек",
 for i in range(len(name_list)):
     cell = sheet.cell(row=1, column=i+1)
     cell.value = name_list[i]
-
-
 
 k = 2
 for i in range(len(cross_list)):
