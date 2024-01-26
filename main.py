@@ -1,6 +1,4 @@
-import array
 import copy
-
 import openpyxl
 import numpy as np
 
@@ -153,7 +151,7 @@ if sheet_name in workbook.sheetnames:
 else:
     sheet = workbook.create_sheet(title=sheet_name)
 
-name_list = ["Пересечения","Δa","Δω","Δv1","Δv2","Δv Σдек","Δv Σпол"]
+name_list = ["Пересечения","Δa","Δω","Δv1","Δv2","Δv Σдек"]
 for i in range(len(name_list)):
     cell = sheet.cell(row=1, column=i+1)
     cell.value = name_list[i]
@@ -180,9 +178,9 @@ for i in range(len(cross_list)):
         # Запись Δv Σдек
         cell = sheet.cell(row=k,column=6)
         cell.value = abs(sheet.cell(row=k,column=5).value + sheet.cell(row=k,column=4).value)
-        # Запись Δv Σпол
-        cell = sheet.cell(row=k, column=7)
-        cell.value = (sheet.cell(row=k,column=4).value**2+sheet.cell(row=k,column=5).value**2)**(1/2)
+        # # Запись Δv Σпол
+        # cell = sheet.cell(row=k, column=7)
+        # cell.value = (sheet.cell(row=k,column=4).value**2+sheet.cell(row=k,column=5).value**2)**(1/2)
         k += 1
 
         # Делаем тоже самое но от второго КА к первому КА
@@ -205,9 +203,9 @@ for i in range(len(cross_list)):
         # Запись Δv Σдек
         cell = sheet.cell(row=k, column=6)
         cell.value = abs(sheet.cell(row=k, column=5).value + sheet.cell(row=k, column=4).value)
-        # Запись Δv Σпол
-        cell = sheet.cell(row=k, column=7)
-        cell.value = (sheet.cell(row=k, column=4).value ** 2 + sheet.cell(row=k, column=5).value ** 2) ** (1 / 2)
+        # # Запись Δv Σпол
+        # cell = sheet.cell(row=k, column=7)
+        # cell.value = (sheet.cell(row=k, column=4).value ** 2 + sheet.cell(row=k, column=5).value ** 2) ** (1 / 2)
         k += 1
 
 # Сохраняем изменения в файле
